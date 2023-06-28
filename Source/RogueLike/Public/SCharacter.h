@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "SCharacter.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class ROGUELIKE_API ASCharacter : public ACharacter
@@ -27,6 +30,14 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputMappingContext* MappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputAction* MoveAction;
+	
+	void Move(const FInputActionValue& Value);
 
 public:	
 	// Called every frame

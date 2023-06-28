@@ -5,6 +5,9 @@
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/InputComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -13,7 +16,7 @@ ASCharacter::ASCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("Spring Arm Component");
-	SpringArmComponent->SetupAttachment(RootComponent);
+	SpringArmComponent->SetupAttachment(GetRootComponent());
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera Component");
 	CameraComponent->SetupAttachment(SpringArmComponent);
@@ -24,6 +27,22 @@ void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(MappingContext, 0);
+		}
+	}
+}
+
+void ASCharacter::Move(const FInputActionValue& Value)
+{
+	const float DirectionValue = Value.Get<float>();
+	if (GetController() && DirectionValue != 0.f)
+	{
+		AddMovementInput(GetActorForwardVector(), DirectionValue);
+	}
 }
 
 // Called every frame
@@ -38,5 +57,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASCharacter::Move);
+	}
 }
 
