@@ -8,6 +8,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -16,10 +17,14 @@ ASCharacter::ASCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("Spring Arm Component");
+	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera Component");
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = false;
 }
 
 // Called when the game starts or when spawned
@@ -38,11 +43,40 @@ void ASCharacter::BeginPlay()
 
 void ASCharacter::Move(const FInputActionValue& Value)
 {
-	const float DirectionValue = Value.Get<float>();
-	if (GetController() && DirectionValue != 0.f)
+	const FVector2D Vector = Value.Get<FVector2D>();
+	const FRotator Rotation = GetControlRotation();
+	const FRotator Rotator = FRotator(0.f, Rotation.Yaw, 0.f);
+	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
+
+	AddMovementInput(YawRotation.Vector(), Vector.Y);
+	FVector RightVector = FRotationMatrix(YawRotation).GetScaledAxis(EAxis::Y);
+	AddMovementInput(RightVector, Vector.X);
+}
+
+void ASCharacter::Look(const FInputActionValue& Value)
+{
+	const FVector2D Vector= Value.Get<FVector2D>();
+	if (GetController())
 	{
-		AddMovementInput(GetActorForwardVector(), DirectionValue);
+		AddControllerYawInput(Vector.X);
+		AddControllerPitchInput(Vector.Y);
 	}
+}
+
+void ASCharacter::Jump(const FInputActionValue& Value)
+{
+	if (GetController() && Value.Get<bool>())
+	{
+		Super::Jump();
+	}
+}
+
+void ASCharacter::PrimaryAttack()
+{
+	FVector SpawnLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, GetControlRotation(), SpawnParameters);
 }
 
 // Called every frame
@@ -60,6 +94,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASCharacter::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASCharacter::Look);
+		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Triggered, this, &ASCharacter::PrimaryAttack);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASCharacter::Jump);
 	}
 }
 
