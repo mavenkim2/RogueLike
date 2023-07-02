@@ -28,6 +28,11 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	UAnimMontage* AttackAnimation;
+
+	FTimerHandle TimerHandlePrimaryAttack;
 	
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComponent;
@@ -60,6 +65,7 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void PrimaryAttack();
+	void PrimaryAttackTimeElapsed();
 	void PrimaryInteract();
 
 public:	

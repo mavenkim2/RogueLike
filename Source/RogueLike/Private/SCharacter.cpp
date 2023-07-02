@@ -76,9 +76,18 @@ void ASCharacter::Jump(const FInputActionValue& Value)
 
 void ASCharacter::PrimaryAttack()
 {
+	PlayAnimMontage(AttackAnimation);
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandlePrimaryAttack, this, &ASCharacter::PrimaryAttackTimeElapsed, 0.2f);
+}
+
+void ASCharacter::PrimaryAttackTimeElapsed()
+{
 	FVector SpawnLocation = GetMesh()->GetSocketLocation("Muzzle_01");
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParameters.Instigator = this;
+	
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, GetControlRotation(), SpawnParameters);
 }
 
