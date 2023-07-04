@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "SProjectileBaseClass.h"
 #include "SCharacter.generated.h"
 
+class USAttributeComponent;
 class USInteractionComponent;
 class UCameraComponent;
 class USpringArmComponent;
@@ -26,23 +28,32 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Projectile Attacks
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> ProjectileClass;
+	TSubclassOf<AActor> AttackProjectile;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> TeleportProjectile;
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	UAnimMontage* AttackAnimation;
 
-	FTimerHandle TimerHandlePrimaryAttack;
-	
-	UPROPERTY(VisibleAnywhere)
+	FTimerHandle TimerHandleProjectile;
+
+	// Components
+	UPROPERTY(VisibleAnywhere, Category="Components")
 	USpringArmComponent* SpringArmComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category="Components")
 	UCameraComponent* CameraComponent;
-
-	UPROPERTY(VisibleAnywhere)
+	
+	UPROPERTY(VisibleAnywhere, Category="Components")
 	USInteractionComponent* InteractionComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	USAttributeComponent* AttributeComponent;
+	
+	// Inputs
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	UInputMappingContext* MappingContext;
 
@@ -60,13 +71,21 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	UInputAction* PrimaryInteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputAction* TeleportAction;
 	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void PrimaryAttack();
-	void PrimaryAttackTimeElapsed();
+	// void PrimaryAttackTimeElapsed();
 	void PrimaryInteract();
+	void Teleport();
+
+	UFUNCTION()
+	void ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass);
+	// void TeleportTimeElapsed();
 
 public:	
 	// Called every frame

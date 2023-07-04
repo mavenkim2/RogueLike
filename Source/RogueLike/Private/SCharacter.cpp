@@ -8,7 +8,9 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
+#include "SProjectileBaseClass.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -28,6 +30,8 @@ ASCharacter::ASCharacter()
 	bUseControllerRotationYaw = false;
 	
 	InteractionComponent = CreateDefaultSubobject<USInteractionComponent>("Interaction Component");
+
+	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>("Attribute Component");
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +52,6 @@ void ASCharacter::Move(const FInputActionValue& Value)
 {
 	const FVector2D Vector = Value.Get<FVector2D>();
 	const FRotator Rotation = GetControlRotation();
-	const FRotator Rotator = FRotator(0.f, Rotation.Yaw, 0.f);
 	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
 	AddMovementInput(YawRotation.Vector(), Vector.Y);
@@ -74,28 +77,61 @@ void ASCharacter::Jump(const FInputActionValue& Value)
 	}
 }
 
-void ASCharacter::PrimaryAttack()
-{
-	PlayAnimMontage(AttackAnimation);
-	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandlePrimaryAttack, this, &ASCharacter::PrimaryAttackTimeElapsed, 0.2f);
-}
-
-void ASCharacter::PrimaryAttackTimeElapsed()
-{
-	FVector SpawnLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParameters.Instigator = this;
-	
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, GetControlRotation(), SpawnParameters);
-}
 
 void ASCharacter::PrimaryInteract()
 {
 	if (InteractionComponent)
 	{
 		InteractionComponent->PrimaryInteract();
+	}
+}
+
+void ASCharacter::PrimaryAttack()
+{
+	PlayAnimMontage(AttackAnimation);
+	FTimerDelegate AttackDelegate; 
+	AttackDelegate.BindUFunction(this, "ProjectileTimeElapsed", AttackProjectile);
+	GetWorldTimerManager().SetTimer(TimerHandleProjectile, AttackDelegate, 0.2f, false);
+}
+
+void ASCharacter::Teleport()
+{
+	PlayAnimMontage(AttackAnimation);
+	FTimerDelegate TeleportDelegate;
+	TeleportDelegate.BindUFunction(this, "ProjectileTimeElapsed", TeleportProjectile);
+	//FTimerDelegate TeleportDelegate = FTimerDelegate::CreateUObject(this, &ASCharacter::ProjectileTimeElapsed, TeleportProjectile);
+	GetWorldTimerManager().SetTimer(TimerHandleProjectile, TeleportDelegate, 0.2f, false);
+}
+
+void ASCharacter::ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass)
+{
+	if (ensureAlways(ProjectileClass))
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandleProjectile);
+		FVector SpawnLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParameters.Instigator = this;
+
+		FCollisionObjectQueryParams QueryParams;
+		QueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		QueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		QueryParams.AddObjectTypesToQuery(ECC_Pawn);
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+	
+		FHitResult HitResult;
+		FVector StartLocation = CameraComponent->GetComponentLocation();
+		FVector EndLocation = StartLocation + GetControlRotation().Vector() * 5000;
+
+		if (GetWorld()->SweepSingleByObjectType(HitResult, StartLocation, EndLocation, FQuat::Identity, QueryParams, FCollisionShape::MakeSphere(20.f), Params))
+		{
+			EndLocation = HitResult.ImpactPoint;
+		}
+	
+		FRotator ProjectileRotation = FRotationMatrix::MakeFromX(EndLocation - SpawnLocation).Rotator();
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, ProjectileRotation, SpawnParameters);
 	}
 }
 
@@ -118,6 +154,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Triggered, this, &ASCharacter::PrimaryAttack);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASCharacter::Jump);
 		EnhancedInputComponent->BindAction(PrimaryInteractAction, ETriggerEvent::Triggered, this, &ASCharacter::PrimaryInteract);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &ASCharacter::Teleport);
 	}
 }
 
