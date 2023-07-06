@@ -103,6 +103,14 @@ void ASCharacter::Teleport()
 	GetWorldTimerManager().SetTimer(TimerHandleProjectile, TeleportDelegate, 0.2f, false);
 }
 
+void ASCharacter::Blackhole()
+{
+	PlayAnimMontage(AttackAnimation);
+	FTimerDelegate BlackholeDelegate; 
+	BlackholeDelegate.BindUFunction(this, "ProjectileTimeElapsed", BlackholeProjectile);
+	GetWorldTimerManager().SetTimer(TimerHandleProjectile, BlackholeDelegate, 0.2f, false);
+}
+
 void ASCharacter::ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass)
 {
 	if (ensureAlways(ProjectileClass))
@@ -123,7 +131,7 @@ void ASCharacter::ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> Proje
 	
 		FHitResult HitResult;
 		FVector StartLocation = CameraComponent->GetComponentLocation();
-		FVector EndLocation = StartLocation + GetControlRotation().Vector() * 5000;
+		FVector EndLocation = StartLocation + (GetControlRotation().Vector() * 5000);
 
 		if (GetWorld()->SweepSingleByObjectType(HitResult, StartLocation, EndLocation, FQuat::Identity, QueryParams, FCollisionShape::MakeSphere(20.f), Params))
 		{
@@ -155,6 +163,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASCharacter::Jump);
 		EnhancedInputComponent->BindAction(PrimaryInteractAction, ETriggerEvent::Triggered, this, &ASCharacter::PrimaryInteract);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &ASCharacter::Teleport);
+		EnhancedInputComponent->BindAction(BlackholeAction, ETriggerEvent::Triggered, this, &ASCharacter::Blackhole);
 	}
 }
 

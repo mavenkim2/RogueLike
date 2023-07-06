@@ -13,17 +13,17 @@
 ASMagicProjectile::ASMagicProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	SphereComponent = CreateDefaultSubobject<USphereComponent>("Sphere Component");
-	RootComponent = SphereComponent;
-	SphereComponent->SetCollisionProfileName("Projectile");
+	// SphereComponent = CreateDefaultSubobject<USphereComponent>("Sphere Component");
+	// RootComponent = SphereComponent;
+	// SphereComponent->SetCollisionProfileName("Projectile");
 
-	ParticleSystemComponent	 = CreateDefaultSubobject<UParticleSystemComponent>("Particle Component");
-	ParticleSystemComponent->SetupAttachment(RootComponent);
-
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Movement Component");
+	// ParticleSystemComponent	 = CreateDefaultSubobject<UParticleSystemComponent>("Particle Component");
+	// ParticleSystemComponent->SetupAttachment(RootComponent);
+	//
+	// ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Movement Component");
 	ProjectileMovementComponent->InitialSpeed = 1000.0f;
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->bInitialVelocityInLocalSpace = true;
+	// ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	// ProjectileMovementComponent->bInitialVelocityInLocalSpace = true;
 	
 }
 

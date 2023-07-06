@@ -34,6 +34,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> TeleportProjectile;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> BlackholeProjectile;
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	UAnimMontage* AttackAnimation;
@@ -74,18 +77,20 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	UInputAction* TeleportAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputAction* BlackholeAction;
 	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void PrimaryAttack();
-	// void PrimaryAttackTimeElapsed();
 	void PrimaryInteract();
 	void Teleport();
+	void Blackhole();
 
 	UFUNCTION()
 	void ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass);
-	// void TeleportTimeElapsed();
 
 public:	
 	// Called every frame

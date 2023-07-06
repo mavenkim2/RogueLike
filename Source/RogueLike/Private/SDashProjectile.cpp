@@ -10,17 +10,17 @@
 
 ASDashProjectile::ASDashProjectile()
 {
-	SphereComponent = CreateDefaultSubobject<USphereComponent>("Sphere Component");
-	RootComponent = SphereComponent;
-	SphereComponent->SetCollisionProfileName("Projectile");
-	
-	ParticleSystemComponent	 = CreateDefaultSubobject<UParticleSystemComponent>("Particle Component");
-	ParticleSystemComponent->SetupAttachment(RootComponent);
-
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Movement Component");
+	// SphereComponent = CreateDefaultSubobject<USphereComponent>("Sphere Component");
+	// RootComponent = SphereComponent;
+	// SphereComponent->SetCollisionProfileName("Projectile");
+	//
+	// ParticleSystemComponent	 = CreateDefaultSubobject<UParticleSystemComponent>("Particle Component");
+	// ParticleSystemComponent->SetupAttachment(RootComponent);
+	//
+	// ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Movement Component");
 	ProjectileMovementComponent->InitialSpeed = 6000.0f;
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->bInitialVelocityInLocalSpace = true;
+	// ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	// ProjectileMovementComponent->bInitialVelocityInLocalSpace = true;
 
 	ParticleTemplate = CreateDefaultSubobject<UParticleSystem>("Particle Template");
 }
@@ -57,7 +57,10 @@ void ASDashProjectile::Teleport()
 {
 	if (AActor* PlayerInstigator = GetInstigator())
 	{
-		PlayerInstigator->TeleportTo(GetActorLocation(), PlayerInstigator->GetActorRotation());
+		if (!PlayerInstigator->TeleportTo(GetActorLocation(), PlayerInstigator->GetActorRotation(), false, false))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Teleport didn't work lol!!!"));
+		}
 	}
 	Destroy();
 }
