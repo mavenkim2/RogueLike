@@ -5,6 +5,7 @@
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
@@ -22,10 +23,28 @@ ASProjectileBaseClass::ASProjectileBaseClass()
 	ProjectileMovementComponent->InitialSpeed = 6000.0f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bInitialVelocityInLocalSpace = true;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
+
+	ParticleTemplate = CreateDefaultSubobject<UParticleSystem>("Particle Template");
 }
 
 // Called when the game starts or when spawned
-void ASProjectileBaseClass::BeginPlay()
+void ASProjectileBaseClass::PostInitializeComponents()
 {
-	Super::BeginPlay();
+	Super::PostInitializeComponents();
+	SphereComponent->OnComponentHit.AddDynamic(this, &ASProjectileBaseClass::OnActorHit);
+}
+
+void ASProjectileBaseClass::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Explode();
+}
+
+void ASProjectileBaseClass::Explode_Implementation()
+{
+	if (ensure(IsValid(this)))
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, ParticleTemplate, GetActorLocation(), GetActorRotation());
+		Destroy();
+	}
 }

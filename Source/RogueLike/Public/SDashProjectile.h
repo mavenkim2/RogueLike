@@ -14,21 +14,20 @@ class ROGUELIKE_API ASDashProjectile : public ASProjectileBaseClass
 
 public:
 	ASDashProjectile();
-	void PostInitializeComponents();
 	virtual void BeginPlay() override;
 
 protected:
 	FTimerHandle TimerHandleDash;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UParticleSystem* ParticleTemplate;
-
-	UFUNCTION()
-	void Detonate();
-
-	UFUNCTION()
-	void DetonateCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	UFUNCTION()
+	
+	virtual void Explode_Implementation() override;
+	
 	void Teleport();
+	
+	virtual void PostInitializeComponents() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float TeleportDelay;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float DetonateDelay;
 };

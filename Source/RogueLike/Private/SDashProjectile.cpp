@@ -10,57 +10,39 @@
 
 ASDashProjectile::ASDashProjectile()
 {
-	// SphereComponent = CreateDefaultSubobject<USphereComponent>("Sphere Component");
-	// RootComponent = SphereComponent;
-	// SphereComponent->SetCollisionProfileName("Projectile");
-	//
-	// ParticleSystemComponent	 = CreateDefaultSubobject<UParticleSystemComponent>("Particle Component");
-	// ParticleSystemComponent->SetupAttachment(RootComponent);
-	//
-	// ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Movement Component");
 	ProjectileMovementComponent->InitialSpeed = 6000.0f;
-	// ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	// ProjectileMovementComponent->bInitialVelocityInLocalSpace = true;
 
-	ParticleTemplate = CreateDefaultSubobject<UParticleSystem>("Particle Template");
+	TeleportDelay = 0.2f;
+	DetonateDelay = 0.2f;
 }
 
 void ASDashProjectile::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	SphereComponent->OnComponentHit.AddDynamic(this, &ASDashProjectile::DetonateCollision);
-	
 }
 
 void ASDashProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
-	GetWorldTimerManager().SetTimer(TimerHandleDash, this, &ASDashProjectile::Detonate, 0.2f);
+	// SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
+	GetWorldTimerManager().SetTimer(TimerHandleDash, this, &ASDashProjectile::Explode, DetonateDelay);
 }
 
-void ASDashProjectile::DetonateCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	Detonate();
-}
-
-void ASDashProjectile::Detonate()
+void ASDashProjectile::Explode_Implementation()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandleDash);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleTemplate, GetActorLocation(), GetActorRotation());
+	ParticleSystemComponent->DeactivateSystem();
 	ProjectileMovementComponent->StopMovementImmediately();
 	SetActorEnableCollision(false);
-	GetWorldTimerManager().SetTimer(TimerHandleDash, this, &ASDashProjectile::Teleport, 0.2f);
+	GetWorldTimerManager().SetTimer(TimerHandleDash, this, &ASDashProjectile::Teleport, TeleportDelay);
 }
 
 void ASDashProjectile::Teleport()
 {
 	if (AActor* PlayerInstigator = GetInstigator())
 	{
-		if (!PlayerInstigator->TeleportTo(GetActorLocation(), PlayerInstigator->GetActorRotation(), false, false))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Teleport didn't work lol!!!"));
-		}
+		PlayerInstigator->TeleportTo(GetActorLocation(), PlayerInstigator->GetActorRotation(), false, false);
 	}
 	Destroy();
 }

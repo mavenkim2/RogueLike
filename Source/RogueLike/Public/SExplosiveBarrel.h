@@ -29,6 +29,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	URadialForceComponent* RadialForce;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Explosion(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

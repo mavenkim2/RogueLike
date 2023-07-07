@@ -30,7 +30,7 @@ void ASExplosiveBarrel::PostInitializeComponents()
 	StaticMeshComponent->OnComponentHit.AddDynamic(this, &ASExplosiveBarrel::Explosion);
 }
 
-void ASExplosiveBarrel::Explosion(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASExplosiveBarrel::Explosion_Implementation(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	RadialForce->FireImpulse();
 
