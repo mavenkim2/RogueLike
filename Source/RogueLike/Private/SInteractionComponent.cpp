@@ -53,7 +53,7 @@ void USInteractionComponent::PrimaryInteract()
 	
 	TArray<FHitResult> HitResults;
 	bool bAreResults = GetWorld()->SweepMultiByObjectType(HitResults, StartLocation, EndLocation, FQuat::Identity, ObjectQueryParams, Sphere);
-	FColor Color = bAreResults ? FColor::Green : FColor:: Red;
+	// FColor Color = bAreResults ? FColor::Green : FColor:: Red;
 
 	for (FHitResult HitResult : HitResults)
 	{
@@ -62,12 +62,12 @@ void USInteractionComponent::PrimaryInteract()
 			if (HitActor->Implements<USGameplayInterface>())
 			{
 				ISGameplayInterface::Execute_Interact(HitActor, Cast<APawn>(GetOwner()));
-				DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, Radius, 32.f, Color, false, 2.0f);
+				// DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, Radius, 32.f, Color, false, 2.0f);
 				break;
 			}
 		}
 	}
 
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, Color, false, 2.0f);
+	// DrawDebugLine(GetWorld(), StartLocation, EndLocation, Color, false, 2.0f);
 }
 

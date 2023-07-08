@@ -11,7 +11,10 @@
 #include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
 #include "SProjectileBaseClass.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -32,6 +35,11 @@ ASCharacter::ASCharacter()
 	InteractionComponent = CreateDefaultSubobject<USInteractionComponent>("Interaction Component");
 
 	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>("Attribute Component");
+
+	EffectsTemplate = CreateDefaultSubobject<UParticleSystem>("Muzzle Flash");
+
+	GetMesh()->SetGenerateOverlapEvents(true);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 }
 
 // Called when the game starts or when spawned
@@ -96,6 +104,10 @@ void ASCharacter::PrimaryInteract()
 void ASCharacter::PrimaryAttack()
 {
 	PlayAnimMontage(AttackAnimation);
+	if (ensure(EffectsTemplate))
+	{
+		UGameplayStatics::SpawnEmitterAttached(EffectsTemplate, GetMesh());// "Muzzle_01");
+	}
 	FTimerDelegate AttackDelegate; 
 	AttackDelegate.BindUFunction(this, "ProjectileTimeElapsed", AttackProjectile);
 	GetWorldTimerManager().SetTimer(TimerHandleProjectile, AttackDelegate, 0.2f, false);
@@ -181,7 +193,9 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 		APlayerController* PlayerController = Cast<APlayerController>(GetController());
 		DisableInput(PlayerController);
 	}
+	
+	if (Delta < 0.0f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
+	}
 }
-
-
-

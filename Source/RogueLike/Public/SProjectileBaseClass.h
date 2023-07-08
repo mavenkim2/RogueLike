@@ -32,6 +32,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	UParticleSystemComponent* ParticleSystemComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Audio")
+	UAudioComponent* FlightSoundComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Audio")
+	UAudioComponent* ImpactSoundComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	TSubclassOf<UCameraShakeBase> CameraShake;
+
 	UFUNCTION()
 	virtual void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 

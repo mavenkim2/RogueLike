@@ -55,6 +55,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USAttributeComponent* AttributeComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category="Effects")
+	UParticleSystem* EffectsTemplate;
 	
 	// Inputs
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")

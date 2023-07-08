@@ -3,6 +3,7 @@
 
 #include "SProjectileBaseClass.h"
 
+#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,6 +27,14 @@ ASProjectileBaseClass::ASProjectileBaseClass()
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
 	ParticleTemplate = CreateDefaultSubobject<UParticleSystem>("Particle Template");
+
+	FlightSoundComponent = CreateDefaultSubobject<UAudioComponent>("Flight Sound");
+	FlightSoundComponent->SetupAttachment(RootComponent);
+	ImpactSoundComponent = CreateDefaultSubobject<UAudioComponent>("Impact Sound");
+	ImpactSoundComponent->SetupAttachment(RootComponent);
+
+	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
+	
 }
 
 // Called when the game starts or when spawned
@@ -33,6 +42,8 @@ void ASProjectileBaseClass::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	SphereComponent->OnComponentHit.AddDynamic(this, &ASProjectileBaseClass::OnActorHit);
+	FlightSoundComponent->Play();
+	ImpactSoundComponent->Stop();
 }
 
 void ASProjectileBaseClass::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -45,6 +56,11 @@ void ASProjectileBaseClass::Explode_Implementation()
 	if (ensure(IsValid(this)))
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this, ParticleTemplate, GetActorLocation(), GetActorRotation());
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSoundComponent->GetSound(), GetActorLocation(), GetActorRotation());
+		if (ensure(CameraShake))
+		{
+			UGameplayStatics::PlayWorldCameraShake(this, CameraShake, GetActorLocation(), 0.f, 1500.f);
+		}
 		Destroy();
 	}
 }
