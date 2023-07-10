@@ -8,18 +8,12 @@
 // Sets default values
 ASHealthPotion::ASHealthPotion()
 {
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Static Mesh");
-	SetRootComponent(StaticMeshComponent);
-
 	HealAmount = 20.0f;
-	Cooldown = 10.0f;
-	bIsActive = true;
-	
 }
 
 void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 {
-	if (!bIsActive)
+	if (!ensure(InstigatorPawn))
 	{
 		return;
 	}
@@ -27,21 +21,7 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	{
 		if (AttributeComponent->ApplyHealthChange(HealAmount))
 		{
-			GetWorldTimerManager().SetTimer(CooldownTimer, this, &ASHealthPotion::Activate, Cooldown);
-			Deactivate();
+			DeactivateAndCooldown();
 		}
 	}
 }
-
-void ASHealthPotion::Activate()
-{
-	bIsActive = true;
-	StaticMeshComponent->SetVisibility(true);
-}
-
-void ASHealthPotion::Deactivate()
-{
-	bIsActive = false;
-	StaticMeshComponent->SetVisibility(false);
-}
-

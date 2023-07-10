@@ -4,23 +4,29 @@
 
 #include "CoreMinimal.h"
 #include "SGameplayInterface.h"
-#include "SPowerup.h"
 #include "GameFramework/Actor.h"
-#include "SHealthPotion.generated.h"
+#include "SPowerup.generated.h"
 
 UCLASS()
-class ROGUELIKE_API ASHealthPotion : public ASPowerup
+class ROGUELIKE_API ASPowerup : public AActor, public ISGameplayInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ASHealthPotion();
+	ASPowerup();
 
 protected:
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* StaticMeshComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float HealAmount;
+	float RespawnTime;
+
+	void SetState(bool bIsActivated);
+	UFUNCTION()
+	void Activate();
+	void DeactivateAndCooldown();
 
 public:	
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;

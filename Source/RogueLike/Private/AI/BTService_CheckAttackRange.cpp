@@ -20,7 +20,7 @@ void UBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, ui
 	{
 		AAIController* AIController = OwnerComp.GetAIOwner();
 		AActor* TargetActor = Cast<AActor>(BlackboardComponent->GetValueAsObject("TargetActor"));
-		if (ensure(TargetActor) && ensure(AIController))
+		if (AIController && TargetActor)
 		{
 			APawn* AIPawn = AIController->GetPawn();
 			if (ensure(AIPawn))

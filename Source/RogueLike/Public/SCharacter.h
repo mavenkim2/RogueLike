@@ -56,8 +56,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USAttributeComponent* AttributeComponent;
 
+	// Effects
 	UPROPERTY(EditDefaultsOnly, Category="Effects")
-	UParticleSystem* EffectsTemplate;
+	UParticleSystem* CastingEffect;
+
+	UPROPERTY(VisibleAnywhere, Category="Effects")
+	FName HandSocketName;
+
+	UPROPERTY(VisibleAnywhere, Category="Effects")
+	FName TimeToHitParamName;
 	
 	// Inputs
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
@@ -91,6 +98,7 @@ protected:
 	void PrimaryInteract();
 	void Teleport();
 	void Blackhole();
+	void StartAttackEffects();
 
 	UFUNCTION()
 	void ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass);

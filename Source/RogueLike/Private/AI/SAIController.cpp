@@ -9,10 +9,12 @@
 void ASAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	RunBehaviorTree(BehaviorTree);
-
-	if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
+	if (ensureMsgf(BehaviorTree, TEXT("Behavior tree is null! Make sure to assign behavior tree in blueprint.")))
 	{
-		GetBlackboardComponent()->SetValueAsObject("TargetActor", PlayerPawn);
+		RunBehaviorTree(BehaviorTree);
 	}
+	// if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
+	// {
+	// 	GetBlackboardComponent()->SetValueAsObject("TargetActor", PlayerPawn);
+	// }
 }

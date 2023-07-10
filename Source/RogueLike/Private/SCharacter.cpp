@@ -36,7 +36,8 @@ ASCharacter::ASCharacter()
 
 	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>("Attribute Component");
 
-	EffectsTemplate = CreateDefaultSubobject<UParticleSystem>("Muzzle Flash");
+	HandSocketName = "Muzzle_01";
+	TimeToHitParamName = "TimeToHit";
 
 	GetMesh()->SetGenerateOverlapEvents(true);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -103,11 +104,7 @@ void ASCharacter::PrimaryInteract()
 
 void ASCharacter::PrimaryAttack()
 {
-	PlayAnimMontage(AttackAnimation);
-	if (ensure(EffectsTemplate))
-	{
-		UGameplayStatics::SpawnEmitterAttached(EffectsTemplate, GetMesh());// "Muzzle_01");
-	}
+	StartAttackEffects();
 	FTimerDelegate AttackDelegate; 
 	AttackDelegate.BindUFunction(this, "ProjectileTimeElapsed", AttackProjectile);
 	GetWorldTimerManager().SetTimer(TimerHandleProjectile, AttackDelegate, 0.2f, false);
@@ -115,7 +112,7 @@ void ASCharacter::PrimaryAttack()
 
 void ASCharacter::Teleport()
 {
-	PlayAnimMontage(AttackAnimation);
+	StartAttackEffects();
 	FTimerDelegate TeleportDelegate;
 	TeleportDelegate.BindUFunction(this, "ProjectileTimeElapsed", TeleportProjectile);
 	//FTimerDelegate TeleportDelegate = FTimerDelegate::CreateUObject(this, &ASCharacter::ProjectileTimeElapsed, TeleportProjectile);
@@ -124,10 +121,16 @@ void ASCharacter::Teleport()
 
 void ASCharacter::Blackhole()
 {
-	PlayAnimMontage(AttackAnimation);
+	StartAttackEffects();
 	FTimerDelegate BlackholeDelegate; 
 	BlackholeDelegate.BindUFunction(this, "ProjectileTimeElapsed", BlackholeProjectile);
 	GetWorldTimerManager().SetTimer(TimerHandleProjectile, BlackholeDelegate, 0.2f, false);
+}
+
+void ASCharacter::StartAttackEffects()
+{
+	PlayAnimMontage(AttackAnimation);
+	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 }
 
 void ASCharacter::ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass)
@@ -135,7 +138,7 @@ void ASCharacter::ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> Proje
 	if (ensureAlways(ProjectileClass))
 	{
 		GetWorldTimerManager().ClearTimer(TimerHandleProjectile);
-		FVector SpawnLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		FVector SpawnLocation = GetMesh()->GetSocketLocation(HandSocketName);
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParameters.Instigator = this;
@@ -196,6 +199,6 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	
 	if (Delta < 0.0f)
 	{
-		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->GetTimeSeconds());
 	}
 }
