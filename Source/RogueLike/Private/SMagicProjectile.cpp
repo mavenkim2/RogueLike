@@ -12,7 +12,7 @@
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
 {
-	ProjectileMovementComponent->InitialSpeed = 1000.0f;
+	Damage = 20.f;
 }
 
 // Called when the game starts or when spawned
@@ -34,7 +34,7 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 	{
 		if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass())))
 		{
-			AttributeComponent->ApplyHealthChange(-20.0f);
+			AttributeComponent->ApplyHealthChange(-Damage);
 			Destroy();
 		}
 	}
