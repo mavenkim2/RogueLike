@@ -30,8 +30,6 @@ ASProjectileBaseClass::ASProjectileBaseClass()
 	FlightSoundComponent = CreateDefaultSubobject<UAudioComponent>("Flight Sound");
 	FlightSoundComponent->SetupAttachment(RootComponent);
 
-	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
-
 	CameraShakeInnerRadius = 250.f;
 	CameraShakeOuterRadius = 2500.f;
 }
@@ -41,6 +39,7 @@ void ASProjectileBaseClass::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	SphereComponent->OnComponentHit.AddDynamic(this, &ASProjectileBaseClass::OnActorHit);
+	// SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
 }
 
 void ASProjectileBaseClass::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

@@ -17,9 +17,9 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	{
 		return;
 	}
-	if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass())))
+	if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(InstigatorPawn))
 	{
-		if (AttributeComponent->ApplyHealthChange(HealAmount))
+		if (AttributeComponent->ApplyHealthChange(this, HealAmount))
 		{
 			DeactivateAndCooldown();
 		}

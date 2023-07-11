@@ -17,7 +17,16 @@ class ROGUELIKE_API USBTTRangedAttack : public UBTTaskNode
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+public:
+
+	USBTTRangedAttack();
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="AI")
 	TSubclassOf<ASProjectileBaseClass> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category="AI")
+	float MaxVerticalBulletSpread;
+
+	UPROPERTY(EditAnywhere, Category="AI")
+	float MaxHorizontalBulletSpread;
 };

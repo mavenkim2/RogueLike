@@ -42,7 +42,7 @@ void ASDashProjectile::Teleport()
 {
 	if (AActor* PlayerInstigator = GetInstigator())
 	{
-		PlayerInstigator->TeleportTo(GetActorLocation(), PlayerInstigator->GetActorRotation(), false, false);
+		PlayerInstigator->TeleportTo(GetActorLocation(), PlayerInstigator->GetActorRotation(), false, true);
 	}
 	Destroy();
 }
