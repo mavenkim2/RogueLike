@@ -103,6 +103,10 @@ protected:
 	UFUNCTION()
 	void ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass);
 
+	//Exec
+	UFUNCTION(Exec)
+	void HealSelf(float HealAmount = 100);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

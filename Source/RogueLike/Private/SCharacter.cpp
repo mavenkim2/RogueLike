@@ -165,6 +165,11 @@ void ASCharacter::ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> Proje
 	}
 }
 
+void ASCharacter::HealSelf(float HealAmount)
+{
+	AttributeComponent->ApplyHealthChange(this, HealAmount);
+}
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {

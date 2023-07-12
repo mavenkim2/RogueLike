@@ -18,6 +18,18 @@ void ASGameModeBase::StartPlay()
 	GetWorldTimerManager().SetTimer(SpawnTimer, this, &ASGameModeBase::SpawnBotTimerElapsed, 2.0f, true);
 }
 
+void ASGameModeBase::KillAll()
+{
+	for (ASAICharacter* AICharacter : TActorRange<ASAICharacter>(GetWorld()))
+	{
+		USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(AICharacter);
+		if (ensure(AttributeComponent) && AttributeComponent->IsAlive())
+		{
+			AttributeComponent->Kill(this);
+		}
+	}
+}
+
 void ASGameModeBase::SpawnBotTimerElapsed()
 {
 	int32 AliveMinions = 0;
