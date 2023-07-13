@@ -117,4 +117,5 @@ public:
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	FVector GetPawnViewLocation() const;
 };

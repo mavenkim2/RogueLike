@@ -5,6 +5,7 @@
 
 #include "Projects.h"
 #include "SAttributeComponent.h"
+#include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -19,7 +20,6 @@ ASMagicProjectile::ASMagicProjectile()
 void ASMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ASMagicProjectile::PostInitializeComponents()
@@ -32,12 +32,9 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(OtherActor))
+		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult))
 		{
-			AttributeComponent->ApplyHealthChange(GetInstigator(), -Damage);
-			Destroy();
+			Explode();
 		}
 	}
 }
-
-

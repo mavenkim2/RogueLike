@@ -40,4 +40,9 @@ public:
 
 	UFUNCTION()
 	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	UFUNCTION()
+	void RespawnPlayedKilled(AController* Controller);
+	
+	void OnActorKilled(AActor* VictimActor, AActor* InstigatorActor);
 };

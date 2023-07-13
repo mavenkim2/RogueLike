@@ -5,6 +5,9 @@
 
 #include "SGameplayInterface.h"
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("rg.DebugDraw"), false, TEXT("Enable Debug lines for Interact Component"), ECVF_Cheat);
+
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -36,6 +39,7 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void USInteractionComponent::PrimaryInteract()
 {
+	bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 	
@@ -53,7 +57,7 @@ void USInteractionComponent::PrimaryInteract()
 	
 	TArray<FHitResult> HitResults;
 	bool bAreResults = GetWorld()->SweepMultiByObjectType(HitResults, StartLocation, EndLocation, FQuat::Identity, ObjectQueryParams, Sphere);
-	// FColor Color = bAreResults ? FColor::Green : FColor:: Red;
+	FColor Color = bAreResults ? FColor::Green : FColor:: Red;
 
 	for (FHitResult HitResult : HitResults)
 	{
@@ -62,12 +66,17 @@ void USInteractionComponent::PrimaryInteract()
 			if (HitActor->Implements<USGameplayInterface>())
 			{
 				ISGameplayInterface::Execute_Interact(HitActor, Cast<APawn>(GetOwner()));
-				// DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, Radius, 32.f, Color, false, 2.0f);
+				if (bDebugDraw)
+				{
+					DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, Radius, 32.f, Color, false, 2.0f);
+				}
 				break;
 			}
 		}
 	}
-
-	// DrawDebugLine(GetWorld(), StartLocation, EndLocation, Color, false, 2.0f);
+	if (bDebugDraw)
+	{
+		DrawDebugLine(GetWorld(), StartLocation, EndLocation, Color, false, 2.0f);
+	}
 }
 
