@@ -8,6 +8,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
 #include "SProjectileBaseClass.h"
@@ -36,7 +37,8 @@ ASCharacter::ASCharacter()
 
 	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>("Attribute Component");
 
-	HandSocketName = "Muzzle_01";
+	ActionComponent = CreateDefaultSubobject<USActionComponent>("Action Component");
+	
 	TimeToHitParamName = "TimeToHit";
 
 	GetMesh()->SetGenerateOverlapEvents(true);
@@ -104,65 +106,27 @@ void ASCharacter::PrimaryInteract()
 
 void ASCharacter::PrimaryAttack()
 {
-	StartAttackEffects();
-	FTimerDelegate AttackDelegate; 
-	AttackDelegate.BindUFunction(this, "ProjectileTimeElapsed", AttackProjectile);
-	GetWorldTimerManager().SetTimer(TimerHandleProjectile, AttackDelegate, 0.2f, false);
+	ActionComponent->StartActionByName(this, "PrimaryAttack");
 }
 
-void ASCharacter::Teleport()
+void ASCharacter::Dash()
 {
-	StartAttackEffects();
-	FTimerDelegate TeleportDelegate;
-	TeleportDelegate.BindUFunction(this, "ProjectileTimeElapsed", TeleportProjectile);
-	//FTimerDelegate TeleportDelegate = FTimerDelegate::CreateUObject(this, &ASCharacter::ProjectileTimeElapsed, TeleportProjectile);
-	GetWorldTimerManager().SetTimer(TimerHandleProjectile, TeleportDelegate, 0.2f, false);
+	ActionComponent->StartActionByName(this, "Dash");
 }
 
 void ASCharacter::Blackhole()
 {
-	StartAttackEffects();
-	FTimerDelegate BlackholeDelegate; 
-	BlackholeDelegate.BindUFunction(this, "ProjectileTimeElapsed", BlackholeProjectile);
-	GetWorldTimerManager().SetTimer(TimerHandleProjectile, BlackholeDelegate, 0.2f, false);
+	ActionComponent->StartActionByName(this, "Blackhole");
 }
 
-void ASCharacter::StartAttackEffects()
+void ASCharacter::SprintStart()
 {
-	PlayAnimMontage(AttackAnimation);
-	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+	ActionComponent->StartActionByName(this, "Sprint");
 }
 
-void ASCharacter::ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass)
+void ASCharacter::SprintStop()
 {
-	if (ensureAlways(ProjectileClass))
-	{
-		GetWorldTimerManager().ClearTimer(TimerHandleProjectile);
-		FVector SpawnLocation = GetMesh()->GetSocketLocation(HandSocketName);
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParameters.Instigator = this;
-
-		FCollisionObjectQueryParams QueryParams;
-		QueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		QueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		QueryParams.AddObjectTypesToQuery(ECC_Pawn);
-
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-	
-		FHitResult HitResult;
-		FVector StartLocation = CameraComponent->GetComponentLocation();
-		FVector EndLocation = StartLocation + (GetControlRotation().Vector() * 5000);
-
-		if (GetWorld()->SweepSingleByObjectType(HitResult, StartLocation, EndLocation, FQuat::Identity, QueryParams, FCollisionShape::MakeSphere(20.f), Params))
-		{
-			EndLocation = HitResult.ImpactPoint;
-		}
-	
-		FRotator ProjectileRotation = FRotationMatrix::MakeFromX(EndLocation - SpawnLocation).Rotator();
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, ProjectileRotation, SpawnParameters);
-	}
+	ActionComponent->StopActionByName(this, "Sprint");
 }
 
 void ASCharacter::HealSelf(float HealAmount)
@@ -189,8 +153,10 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Triggered, this, &ASCharacter::PrimaryAttack);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASCharacter::Jump);
 		EnhancedInputComponent->BindAction(PrimaryInteractAction, ETriggerEvent::Triggered, this, &ASCharacter::PrimaryInteract);
-		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &ASCharacter::Teleport);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &ASCharacter::Dash);
 		EnhancedInputComponent->BindAction(BlackholeAction, ETriggerEvent::Triggered, this, &ASCharacter::Blackhole);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASCharacter::SprintStart);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASCharacter::SprintStop);
 	}
 }
 

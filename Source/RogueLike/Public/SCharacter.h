@@ -8,6 +8,7 @@
 #include "SProjectileBaseClass.h"
 #include "SCharacter.generated.h"
 
+class USActionComponent;
 class USAttributeComponent;
 class USInteractionComponent;
 class UCameraComponent;
@@ -27,22 +28,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	// Projectile Attacks
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> AttackProjectile;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> TeleportProjectile;
 	
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> BlackholeProjectile;
-
-	UPROPERTY(EditAnywhere, Category="Input")
-	UAnimMontage* AttackAnimation;
-
-	FTimerHandle TimerHandleProjectile;
-
 	// Components
 	UPROPERTY(VisibleAnywhere, Category="Components")
 	USpringArmComponent* SpringArmComponent;
@@ -56,13 +42,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USAttributeComponent* AttributeComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	USActionComponent* ActionComponent;
+
 	// Effects
-	UPROPERTY(EditDefaultsOnly, Category="Effects")
-	UParticleSystem* CastingEffect;
-
-	UPROPERTY(VisibleAnywhere, Category="Effects")
-	FName HandSocketName;
-
 	UPROPERTY(VisibleAnywhere, Category="Effects")
 	FName TimeToHitParamName;
 	
@@ -90,18 +73,22 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	UInputAction* BlackholeAction;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputAction* SprintAction;
+
+	// Movement
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
+
+	// Abilities
 	void PrimaryAttack();
 	void PrimaryInteract();
-	void Teleport();
+	void Dash();
 	void Blackhole();
-	void StartAttackEffects();
-
-	UFUNCTION()
-	void ProjectileTimeElapsed(TSubclassOf<ASProjectileBaseClass> ProjectileClass);
+	void SprintStart();
+	void SprintStop();
 
 	//Exec
 	UFUNCTION(Exec)
@@ -117,5 +104,6 @@ public:
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	
 	FVector GetPawnViewLocation() const;
 };

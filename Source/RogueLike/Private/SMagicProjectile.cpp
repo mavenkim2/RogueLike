@@ -3,12 +3,8 @@
 
 #include "SMagicProjectile.h"
 
-#include "Projects.h"
-#include "SAttributeComponent.h"
 #include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
@@ -32,7 +28,7 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult))
+ 		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult))
 		{
 			Explode();
 		}
