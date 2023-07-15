@@ -11,11 +11,8 @@
 #include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
-#include "SProjectileBaseClass.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Particles/ParticleSystem.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -134,6 +131,11 @@ void ASCharacter::HealSelf(float HealAmount)
 	AttributeComponent->ApplyHealthChange(this, HealAmount);
 }
 
+void ASCharacter::Parry()
+{
+	ActionComponent->StartActionByName(this, "Parry");
+}
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {
@@ -150,13 +152,14 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASCharacter::Look);
-		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Triggered, this, &ASCharacter::PrimaryAttack);
+		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &ASCharacter::PrimaryAttack);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASCharacter::Jump);
 		EnhancedInputComponent->BindAction(PrimaryInteractAction, ETriggerEvent::Triggered, this, &ASCharacter::PrimaryInteract);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &ASCharacter::Dash);
 		EnhancedInputComponent->BindAction(BlackholeAction, ETriggerEvent::Triggered, this, &ASCharacter::Blackhole);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASCharacter::SprintStart);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASCharacter::SprintStop);
+		EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Triggered, this, &ASCharacter::Parry);
 	}
 }
 

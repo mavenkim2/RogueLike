@@ -39,7 +39,6 @@ void ASProjectileBaseClass::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	SphereComponent->OnComponentHit.AddDynamic(this, &ASProjectileBaseClass::OnActorHit);
-	// SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
 }
 
 void ASProjectileBaseClass::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

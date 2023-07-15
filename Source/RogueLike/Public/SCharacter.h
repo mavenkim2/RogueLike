@@ -77,6 +77,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
 	UInputAction* SprintAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input")
+	UInputAction* ParryAction;
+
 	// Movement
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -89,6 +92,7 @@ protected:
 	void Blackhole();
 	void SprintStart();
 	void SprintStop();
+	void Parry();
 
 	//Exec
 	UFUNCTION(Exec)

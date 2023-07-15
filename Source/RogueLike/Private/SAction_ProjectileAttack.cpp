@@ -49,7 +49,8 @@ void USAction_ProjectileAttack::AttackDelay_Elapsed(ACharacter* Instigator)
 		FVector StartLocation = Instigator->GetPawnViewLocation();
 		FVector EndLocation = StartLocation + (Instigator->GetControlRotation().Vector() * 5000);
 
-		if (GetWorld()->SweepSingleByObjectType(HitResult, StartLocation, EndLocation, FQuat::Identity, QueryParams, FCollisionShape::MakeSphere(20.f), Params))
+		// if (GetWorld()->SweepSingleByObjectType(HitResult, StartLocation, EndLocation, FQuat::Identity, QueryParams, FCollisionShape::MakeSphere(20.f), Params))
+		if (GetWorld()->LineTraceSingleByObjectType(HitResult, StartLocation, EndLocation, QueryParams, Params))
 		{
 			EndLocation = HitResult.ImpactPoint;
 		}

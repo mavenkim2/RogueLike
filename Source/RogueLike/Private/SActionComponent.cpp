@@ -9,6 +9,12 @@
 // Sets default values for this component's properties
 USActionComponent::USActionComponent()
 {
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
+FGameplayTagContainer& USActionComponent::GetActiveGameplayTags()
+{
+	return ActiveGameplayTags;
 }
 
 void USActionComponent::BeginPlay()
@@ -18,6 +24,13 @@ void USActionComponent::BeginPlay()
 	{
 		AddAction(ActionClass);
 	}
+}
+
+void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	FString DebugString = FString::Printf(TEXT("%s: %s"), *GetNameSafe(GetOwner()), *ActiveGameplayTags.ToStringSimple());
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::White, DebugString);
 }
 
 void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass)
@@ -37,6 +50,12 @@ bool USActionComponent::StartActionByName(AActor* InstigatorActor, FName ActionN
 {
 	if (USAction* Action = Actions[ActionName])
 	{
+		if (!Action->CanStart(InstigatorActor))
+		{
+			FString FailedMsg = FString::Printf(TEXT("Failed to run %s"), *ActionName.ToString());
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FailedMsg);
+			return false;
+		}
 		Action->StartAction(InstigatorActor);
 		return true;
 	}

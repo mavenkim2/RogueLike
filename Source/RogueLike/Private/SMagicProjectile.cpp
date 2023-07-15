@@ -3,8 +3,10 @@
 
 #include "SMagicProjectile.h"
 
+#include "SActionComponent.h"
 #include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
@@ -28,6 +30,13 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
+		USActionComponent* ActionComponent = OtherActor->GetComponentByClass<USActionComponent>();
+		if (ActionComponent && ActionComponent->GetActiveGameplayTags().HasTag(ParryTag))
+		{
+			ProjectileMovementComponent->Velocity *= -1;
+			SetInstigator(Cast<APawn>(OtherActor));
+			return;
+		}
  		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult))
 		{
 			Explode();

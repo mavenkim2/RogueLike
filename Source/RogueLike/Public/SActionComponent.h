@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "SActionComponent.generated.h"
 
@@ -23,6 +24,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Action")
 	bool StopActionByName(AActor* InstigatorActor, FName ActionName);
+
+	UFUNCTION(BlueprintCallable, Category="Tags")
+	FGameplayTagContainer& GetActiveGameplayTags();
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	
 	USActionComponent();
 
@@ -32,6 +38,10 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	TMap<FName, USAction*> Actions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Actions")
+	FGameplayTagContainer ActiveGameplayTags;
 	
 	virtual void BeginPlay() override;
+
 };

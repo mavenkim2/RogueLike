@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/NoExportTypes.h"
 #include "SAction.generated.h"
 
@@ -16,11 +17,22 @@ class ROGUELIKE_API USAction : public UObject
 
 public:
 	UFUNCTION(BlueprintNativeEvent,Category="Action")
+	bool CanStart(AActor* InstigatorActor);
+	
+	UFUNCTION(BlueprintNativeEvent,Category="Action")
 	void StartAction(AActor* InstigatorActor);
 	
-	UFUNCTION(BlueprintNativeEvent, Category="Action")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Action")
 	void StopAction(AActor* InstigatorActor);
 
+	UFUNCTION(BlueprintCallable, Category="Action")
+	bool IsRunning() const;
+	
+	void StartCooldown();
+	
+	UFUNCTION()
+	void StopCooldown();
+	
 	FName GetActionName() const;
 
 	UWorld* GetWorld() const override;
@@ -28,4 +40,17 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="Action")
 	FName ActionName;
+
+	UPROPERTY(EditDefaultsOnly, Category="Tags")
+	FGameplayTagContainer BlockedTags;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Tags")
+	FGameplayTagContainer GrantsTags;
+
+	bool bIsRunning;
+
+	bool bOnCooldown;
+
+	UPROPERTY(EditDefaultsOnly, Category="Action")
+	float TimeOnCooldown;
 };

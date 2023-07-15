@@ -4,6 +4,7 @@
 #include "AI/SAICharacter.h"
 
 #include "BrainComponent.h"
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SWorldUserWidget.h"
 #include "AI/SAIController.h"
@@ -18,6 +19,7 @@ ASAICharacter::ASAICharacter()
 {
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("Pawn Sensing Component");
 	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>("Attribute Component");
+	ActionComponent = CreateDefaultSubobject<USActionComponent>("Action Component");
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	TimeToHitParamName = "TimeToHit";
