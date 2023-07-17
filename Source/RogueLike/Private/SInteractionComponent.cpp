@@ -4,6 +4,8 @@
 #include "SInteractionComponent.h"
 
 #include "SGameplayInterface.h"
+#include "SWorldUserWidget.h"
+#include "Blueprint/UserWidget.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("rg.DebugDraw"), false, TEXT("Enable Debug lines for Interact Component"), ECVF_Cheat);
 
@@ -11,53 +13,43 @@ static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("rg.DebugDraw"),
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	TraceDistance = 500.f;
+	CollisionChannel = ECC_WorldDynamic;
+	TraceRadius = 30.f;
 }
 
-
-// Called when the game starts
 void USInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
 	
 }
 
-
-// Called every frame
 void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	LookForInteract();
 }
 
-void USInteractionComponent::PrimaryInteract()
+// when you look at an interactable object, a widget should appear on the screen saying "F to interact"
+// line tracing every frame (seems kinda slow?)
+// if you are looking at an actor that is interactable, add the widget
+// if you look away, remove the widget
+void USInteractionComponent::LookForInteract()
 {
-	bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
 	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjectQueryParams.AddObjectTypesToQuery(CollisionChannel);
 	
 	FVector StartLocation;
 	FRotator Rotation;
 	GetOwner()->GetActorEyesViewPoint(StartLocation, Rotation);
-	FVector EndLocation = StartLocation + (Rotation.Vector() * 1000.0f);
-	
-	// FHitResult HitResult;
-	// GetWorld()->LineTraceSingleByObjectType(HitResult, StartLocation, EndLocation, ObjectQueryParams);
-
-	float Radius = 30.0f;
-	FCollisionShape Sphere;
-	Sphere.SetSphere(Radius);
+	FVector EndLocation = StartLocation + (Rotation.Vector() * TraceDistance);
 	
 	TArray<FHitResult> HitResults;
-	bool bAreResults = GetWorld()->SweepMultiByObjectType(HitResults, StartLocation, EndLocation, FQuat::Identity, ObjectQueryParams, Sphere);
-	FColor Color = bAreResults ? FColor::Green : FColor:: Red;
+	GetWorld()->SweepMultiByObjectType(HitResults, StartLocation, EndLocation, FQuat::Identity, ObjectQueryParams, FCollisionShape::MakeSphere(TraceRadius));
+
+	FocusedActor = nullptr;
 
 	for (FHitResult HitResult : HitResults)
 	{
@@ -65,18 +57,42 @@ void USInteractionComponent::PrimaryInteract()
 		{
 			if (HitActor->Implements<USGameplayInterface>())
 			{
-				ISGameplayInterface::Execute_Interact(HitActor, Cast<APawn>(GetOwner()));
-				if (bDebugDraw)
-				{
-					DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, Radius, 32.f, Color, false, 2.0f);
-				}
+				FocusedActor = HitActor;
 				break;
 			}
 		}
 	}
-	if (bDebugDraw)
+	if (FocusedActor)
 	{
-		DrawDebugLine(GetWorld(), StartLocation, EndLocation, Color, false, 2.0f);
+		if (!DefaultWidgetInstance && ensure(DefaultWidgetClass))
+		{
+			DefaultWidgetInstance = CreateWidget<USWorldUserWidget>(GetWorld(), DefaultWidgetClass);
+		}
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->AttachedActor = FocusedActor;
+			if (!DefaultWidgetInstance->IsInViewport())
+			{
+				DefaultWidgetInstance->AddToViewport();
+			}
+		}
 	}
+	else
+	{
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->RemoveFromParent();
+		}
+	}
+}
+
+void USInteractionComponent::PrimaryInteract()
+{
+	if (!FocusedActor)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "No focus actor to interact");
+		return;
+	}
+	ISGameplayInterface::Execute_Interact(FocusedActor, Cast<APawn>(GetOwner()));
 }
 

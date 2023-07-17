@@ -19,8 +19,11 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
 	float HealAmount;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Credits")
+	int32 CreditsCost;
 
 public:	
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;

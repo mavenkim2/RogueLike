@@ -4,11 +4,13 @@
 #include "SHealthPotion.h"
 
 #include "SAttributeComponent.h"
+#include "SPlayerState.h"
 
 // Sets default values
 ASHealthPotion::ASHealthPotion()
 {
 	HealAmount = 20.0f;
+	CreditsCost = 20;
 }
 
 void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
@@ -19,9 +21,12 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	}
 	if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(InstigatorPawn))
 	{
-		if (AttributeComponent->ApplyHealthChange(this, HealAmount))
+		if (ASPlayerState* PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>())
 		{
-			DeactivateAndCooldown();
+			if (PlayerState->ApplyCreditsChange(-CreditsCost) && AttributeComponent->ApplyHealthChange(this, HealAmount))
+			{
+				DeactivateAndCooldown();
+			}
 		}
 	}
 }

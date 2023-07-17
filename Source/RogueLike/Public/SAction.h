@@ -37,6 +37,9 @@ public:
 
 	UWorld* GetWorld() const override;
 
+	UPROPERTY(EditDefaultsOnly, Category="Effects")
+	bool bAutoStart;
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="Action")
 	FName ActionName;
