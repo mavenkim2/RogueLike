@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SPlayerController.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "GameFramework/GameModeBase.h"
 #include "SGameModeBase.generated.h"
@@ -61,7 +62,7 @@ public:
 	void OnPowerUpSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
 	UFUNCTION()
-	void RespawnPlayedKilled(AController* Controller);
+	void RespawnPlayedKilled(ASPlayerController* Controller);
 	
 	void OnActorKilled(AActor* VictimActor, AActor* InstigatorActor);
 };

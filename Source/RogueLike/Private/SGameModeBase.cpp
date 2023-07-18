@@ -6,6 +6,7 @@
 #include "EngineUtils.h"
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
+#include "SPlayerController.h"
 #include "SPlayerState.h"
 #include "SPowerup.h"
 #include "AI/SAICharacter.h"
@@ -24,7 +25,7 @@ ASGameModeBase::ASGameModeBase()
 void ASGameModeBase::StartPlay()
 {
 	Super::StartPlay();
-	GetWorldTimerManager().SetTimer(SpawnTimer, this, &ASGameModeBase::SpawnBotTimerElapsed, 2.0f, true);
+	GetWorldTimerManager().SetTimer(SpawnTimer, this, &ASGameModeBase::SpawnBotTimerElapsed, 5.f, true);
 
 	if (PowerupClasses.Num() > 0)
 	{
@@ -144,12 +145,13 @@ void ASGameModeBase::OnPowerUpSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrap
 	}
 }
 
-void ASGameModeBase::RespawnPlayedKilled(AController* Controller)
+void ASGameModeBase::RespawnPlayedKilled(ASPlayerController* Controller)
 {
 	if (ensure(Controller))
 	{
 		Controller->UnPossess();
 		RestartPlayer(Controller);
+		Controller->ReconstructHUD();
 	}
 }
 
@@ -160,7 +162,7 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* InstigatorActor)
 	{
 		FTimerHandle TimerHandle_RespawnDelay;
 		FTimerDelegate RespawnDelegate;
-		RespawnDelegate.BindUFunction(this, "RespawnPlayedKilled", Player->GetController());
+		RespawnDelegate.BindUFunction(this, "RespawnPlayedKilled", Player->GetController<ASPlayerController>());
 		float RespawnDelay = 2.f;
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, RespawnDelegate, RespawnDelay, false);
 	}

@@ -11,6 +11,8 @@ ASPowerup::ASPowerup()
 	SetRootComponent(StaticMeshComponent);
 	
 	RespawnTime = 10.0f;
+
+	SetReplicates(true);
 }
 
 void ASPowerup::Interact_Implementation(APawn* InstigatorPawn)

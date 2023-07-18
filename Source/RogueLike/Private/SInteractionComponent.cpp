@@ -25,11 +25,17 @@ void USInteractionComponent::BeginPlay()
 	
 }
 
+
+
 void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	LookForInteract();
+	APawn* Pawn = Cast<APawn>(GetOwner());
+	if (Pawn->IsLocallyControlled())
+	{
+		LookForInteract();
+	}
 }
 
 // when you look at an interactable object, a widget should appear on the screen saying "F to interact"
@@ -86,13 +92,18 @@ void USInteractionComponent::LookForInteract()
 	}
 }
 
-void USInteractionComponent::PrimaryInteract()
+void USInteractionComponent::ServerInteract_Implementation(AActor* InFocus)
 {
-	if (!FocusedActor)
+	if (!InFocus)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "No focus actor to interact");
 		return;
 	}
-	ISGameplayInterface::Execute_Interact(FocusedActor, Cast<APawn>(GetOwner()));
+	ISGameplayInterface::Execute_Interact(InFocus, Cast<APawn>(GetOwner()));
+}
+
+void USInteractionComponent::PrimaryInteract()
+{
+	ServerInteract(FocusedActor);
 }
 

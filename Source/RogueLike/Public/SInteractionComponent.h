@@ -22,6 +22,11 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* InFocus);
+	
+	void LookForInteract();
+
 	UPROPERTY(EditDefaultsOnly, Category="Trace")
 	float TraceDistance;
 	
@@ -41,9 +46,7 @@ protected:
 	USWorldUserWidget* DefaultWidgetInstance;
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void LookForInteract();
 
 	void PrimaryInteract();	
 };
