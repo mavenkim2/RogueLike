@@ -26,7 +26,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* StaticMeshComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	URadialForceComponent* RadialForce;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)

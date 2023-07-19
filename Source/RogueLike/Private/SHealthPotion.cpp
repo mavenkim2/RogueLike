@@ -23,8 +23,9 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	{
 		if (ASPlayerState* PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>())
 		{
-			if (PlayerState->ApplyCreditsChange(-CreditsCost) && AttributeComponent->ApplyHealthChange(this, HealAmount))
+			if (!AttributeComponent->IsFullHealth() && PlayerState->ApplyCreditsChange(-CreditsCost))
 			{
+				AttributeComponent->ApplyHealthChange(this, HealAmount);
 				DeactivateAndCooldown();
 			}
 		}
