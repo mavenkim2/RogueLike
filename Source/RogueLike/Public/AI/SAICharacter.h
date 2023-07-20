@@ -38,6 +38,12 @@ protected:
 
 	USWorldUserWidget* ActiveHealthBar;
 
+	UPROPERTY(VisibleAnywhere, Category="AI")
+	FName TargetActorKey;
+
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<UUserWidget> SpottedWidgetClass;
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
 
@@ -45,5 +51,7 @@ protected:
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	virtual void PostInitializeComponents() override;
+	
+	AActor* GetTargetActor() const;
 	void SetTargetActor(AActor* NewTarget);
 };

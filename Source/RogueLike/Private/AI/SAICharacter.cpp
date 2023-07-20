@@ -23,6 +23,7 @@ ASAICharacter::ASAICharacter()
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	TimeToHitParamName = "TimeToHit";
+	TargetActorKey = "TargetActor";
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
@@ -35,17 +36,36 @@ void ASAICharacter::PostInitializeComponents()
 	AttributeComponent->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
 }
 
+AActor* ASAICharacter::GetTargetActor() const
+{
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if (AIC)
+	{
+		return Cast<AActor>(AIC->GetBlackboardComponent()->GetValueAsObject(TargetActorKey));
+	}
+	return nullptr;
+}
+
 void ASAICharacter::SetTargetActor(AActor* NewTarget)
 {
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
-		AIController->GetBlackboardComponent()->SetValueAsObject("TargetActor", NewTarget);
+		AIController->GetBlackboardComponent()->SetValueAsObject(TargetActorKey, NewTarget);
 	}
 }
 
 void ASAICharacter::OnPawnSeen(APawn* Pawn)
 {
-	SetTargetActor(Pawn);
+	if (GetTargetActor() != Pawn)
+	{
+		SetTargetActor(Pawn);
+		USWorldUserWidget* Widget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+		if (Widget)
+		{
+			Widget->AttachedActor = this;
+			Widget->AddToViewport(10);
+		}
+	}
 }
 
 void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
@@ -77,10 +97,9 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 				AIController->GetBrainComponent()->StopLogic("Killed");
 			}
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
-			GetMesh()->SetGenerateOverlapEvents(false);
+			// GetMesh()->SetGenerateOverlapEvents(false);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			//GetCharacterMovement()->DisableMovement();
 			SetLifeSpan(10.f);
 		}
 	}

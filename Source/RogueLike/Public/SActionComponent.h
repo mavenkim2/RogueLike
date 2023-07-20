@@ -28,19 +28,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Action")
 	bool StopActionByName(AActor* InstigatorActor, FName ActionName);
 
+	UFUNCTION(Server, Reliable)
+	void ServerStartAction(AActor* InstigatorActor, FName ActionName);
+
 	UFUNCTION(BlueprintCallable, Category="Tags")
 	FGameplayTagContainer& GetActiveGameplayTags();
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	
+
+	UFUNCTION(BlueprintCallable, Category="Action")
+	USAction* GetAction(TSubclassOf<USAction> ActionClass);
+
+	bool ReplicateSubobjects(UActorChannel *Channel, FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
+
 	USActionComponent();
 
 protected:
 	UPROPERTY(EditAnywhere, Category="Actions")
 	TArray<TSubclassOf<USAction>> DefaultActions;
 	
-	UPROPERTY(BlueprintReadOnly)
-	TMap<FName, USAction*> Actions;
+	UPROPERTY(Replicated)
+	TArray<USAction*> Actions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Actions")
 	FGameplayTagContainer ActiveGameplayTags;

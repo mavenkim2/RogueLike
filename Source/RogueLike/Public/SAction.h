@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "SActionComponent.h"
 #include "UObject/NoExportTypes.h"
 #include "SAction.generated.h"
 
@@ -37,8 +38,16 @@ public:
 
 	UWorld* GetWorld() const override;
 
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	USActionComponent* GetOwningComponent() const;
+
 	UPROPERTY(EditDefaultsOnly, Category="Effects")
 	bool bAutoStart;
+
+	bool IsSupportedForNetworking() const override
+	{
+		return true;
+	}
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="Action")
@@ -50,7 +59,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Tags")
 	FGameplayTagContainer GrantsTags;
 
+	UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
 	bool bIsRunning;
+
+	UFUNCTION()
+	void OnRep_IsRunning();
 
 	bool bOnCooldown;
 
