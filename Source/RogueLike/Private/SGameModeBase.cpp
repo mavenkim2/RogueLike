@@ -151,7 +151,6 @@ void ASGameModeBase::RespawnPlayedKilled(ASPlayerController* Controller)
 	{
 		Controller->UnPossess();
 		RestartPlayer(Controller);
-		Controller->ReconstructHUD();
 	}
 }
 

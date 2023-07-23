@@ -21,10 +21,13 @@ void USAction_ProjectileAttack::StartAction_Implementation(AActor* InstigatorAct
 		Character->PlayAnimMontage(AttackAnimation);
 		UGameplayStatics::SpawnEmitterAttached(CastingEffect, Character->GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 
-		FTimerHandle TimerHandle_AttackDelay;
-		FTimerDelegate ProjectileDelegate; 
-		ProjectileDelegate.BindUFunction(this, "AttackDelay_Elapsed", InstigatorActor);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, ProjectileDelegate, AttackAnimationDelay, false);
+		if (Character->HasAuthority())
+		{
+			FTimerHandle TimerHandle_AttackDelay;
+			FTimerDelegate ProjectileDelegate; 
+			ProjectileDelegate.BindUFunction(this, "AttackDelay_Elapsed", InstigatorActor);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, ProjectileDelegate, AttackAnimationDelay, false);
+		}
 	}
 }
 

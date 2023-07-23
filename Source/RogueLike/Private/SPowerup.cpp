@@ -12,7 +12,7 @@ ASPowerup::ASPowerup()
 	
 	RespawnTime = 10.0f;
 
-	SetReplicates(true);
+	bReplicates = true;
 }
 
 void ASPowerup::Interact_Implementation(APawn* InstigatorPawn)

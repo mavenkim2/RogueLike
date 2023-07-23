@@ -9,20 +9,16 @@
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPawnChanged, APawn*, InPawn);
+
 UCLASS()
 class ROGUELIKE_API ASPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(EditDefaultsOnly, Category="HUD")
-	TSubclassOf<UUserWidget> HUDClass;
-	
-	UUserWidget* MainHUD;
-	
-	virtual void BeginPlay() override;
-
 public:
-	void ReconstructHUD();
+	UPROPERTY(BlueprintAssignable)
+	FOnPawnChanged OnPawnChanged;
 	
+	virtual void SetPawn(APawn* InPawn) override;
 };

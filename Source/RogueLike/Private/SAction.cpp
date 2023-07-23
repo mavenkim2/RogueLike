@@ -9,7 +9,7 @@
 
 bool USAction::CanStart_Implementation(AActor* InstigatorActor)
 {
-	if (bIsRunning || bOnCooldown)
+	if (RepData.bIsRunning || bOnCooldown)
 	{
 		return false;
 	}
@@ -23,31 +23,33 @@ bool USAction::CanStart_Implementation(AActor* InstigatorActor)
 
 void USAction::StartAction_Implementation(AActor* InstigatorActor)
 {
-	// UE_LOG(LogTemp, Log, TEXT("%s action started"), *GetNameSafe(this));
-	LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
+	UE_LOG(LogTemp, Log, TEXT("%s action started"), *GetNameSafe(this));
+	// LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
 	USActionComponent* ActionComponent = GetOwningComponent();
 	ActionComponent->GetActiveGameplayTags().AppendTags(GrantsTags);
-	bIsRunning = true;
+	RepData.bIsRunning = true;
+	RepData.Instigator = InstigatorActor;
 }
 
 void USAction::StopAction_Implementation(AActor* InstigatorActor)
 {
-	if (!bIsRunning)
-	{
-		return;
-	}
-	// UE_LOG(LogTemp, Log, TEXT("%s action stopped"), *GetNameSafe(this))
-	LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::White);
+	// if (!RepData.bIsRunning)
+	// {
+	// 	return;
+	// }
+	UE_LOG(LogTemp, Log, TEXT("%s action stopped"), *GetNameSafe(this))
+	// LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::White);
 	USActionComponent* ActionComponent = GetOwningComponent();
 	ActionComponent->GetActiveGameplayTags().RemoveTags(GrantsTags);
-	bIsRunning = false;
+	RepData.bIsRunning = false;
+	RepData.Instigator = InstigatorActor;
 	StartCooldown();
 }
 
 
 bool USAction::IsRunning() const
 {
-	return bIsRunning;
+	return RepData.bIsRunning;
 }
 
 void USAction::StartCooldown()
@@ -86,15 +88,15 @@ USActionComponent* USAction::GetOwningComponent() const
 	return Cast<USActionComponent>(GetOuter());
 }
 
-void USAction::OnRep_IsRunning()
+void USAction::OnRep_RepData()
 {
-	if (bIsRunning)
+	if (RepData.bIsRunning)
 	{
-		StartAction(nullptr);
+		StartAction(RepData.Instigator);
 	}
 	else
 	{
-		StopAction(nullptr);
+		StopAction(RepData.Instigator);
 	}
 }
 
@@ -102,5 +104,5 @@ void USAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(USAction, bIsRunning);
+	DOREPLIFETIME(USAction, RepData);
 } 

@@ -33,7 +33,8 @@ ASProjectileBaseClass::ASProjectileBaseClass()
 	CameraShakeInnerRadius = 250.f;
 	CameraShakeOuterRadius = 2500.f;
 
-	SetReplicates(true);
+	bReplicates = true;
+	// SetReplicates(true);
 }
 
 // Called when the game starts or when spawned

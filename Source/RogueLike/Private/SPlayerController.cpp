@@ -3,30 +3,9 @@
 
 #include "SPlayerController.h"
 
-#include "Blueprint/UserWidget.h"
-
-void ASPlayerController::BeginPlay()
+void ASPlayerController::SetPawn(APawn* InPawn)
 {
-	Super::BeginPlay();
-	if (ensure(HUDClass))
-	{
-		if (IsLocalPlayerController())
-		{
-			MainHUD = CreateWidget<UUserWidget>(this, HUDClass);
-			MainHUD->AddToViewport();
-		}
-	}
-}
+	Super::SetPawn(InPawn);
 
-void ASPlayerController::ReconstructHUD()
-{
-	if (MainHUD)
-	{
-		if (IsLocalPlayerController())
-		{
-			MainHUD->RemoveFromParent();
-			MainHUD = CreateWidget<UUserWidget>(this, HUDClass);
-			MainHUD->AddToViewport();
-		}
-	}
+	OnPawnChanged.Broadcast(InPawn);
 }

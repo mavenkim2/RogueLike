@@ -30,6 +30,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerStartAction(AActor* InstigatorActor, FName ActionName);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerStopAction(AActor* InstigatorActor, FName ActionName);
 
 	UFUNCTION(BlueprintCallable, Category="Tags")
 	FGameplayTagContainer& GetActiveGameplayTags();

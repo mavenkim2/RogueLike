@@ -97,7 +97,6 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 				AIController->GetBrainComponent()->StopLogic("Killed");
 			}
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
-			// GetMesh()->SetGenerateOverlapEvents(false);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			SetLifeSpan(10.f);

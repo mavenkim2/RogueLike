@@ -16,7 +16,7 @@ ASTreasureChest::ASTreasureChest()
 
 	TargetPitch = 110.f;
 
-	SetReplicates(true);
+	bReplicates = true;
 }
 
 void ASTreasureChest::OnRep_OpenLid()

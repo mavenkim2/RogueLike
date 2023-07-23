@@ -16,6 +16,8 @@ USActionComponent::USActionComponent()
 	SetIsReplicatedByDefault(true);
 }
 
+
+
 FGameplayTagContainer& USActionComponent::GetActiveGameplayTags()
 {
 	return ActiveGameplayTags;
@@ -40,16 +42,14 @@ void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// FString DebugString = FString::Printf(TEXT("%s: %s"), *GetNameSafe(GetOwner()), *ActiveGameplayTags.ToStringSimple());
 	// GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::White, DebugString);
 	
-	for (USAction* Action : Actions)
-	{
-		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
-		FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s : IsRunning : %s : Outer : %s"),
-			*GetNameSafe(GetOwner()),
-			*Action->GetActionName().ToString(),
-			Action->IsRunning() ? TEXT("true") : TEXT("false"),
-			*GetNameSafe(Action->GetOuter()));
-		LogOnScreen(this, ActionMsg, TextColor, 0.f);
-	}
+	// for (USAction* Action : Actions)
+	// {
+	// 	FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
+	// 	FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s"),
+	// 		*GetNameSafe(GetOwner()),
+	// 		*GetNameSafe(Action));
+	// 	LogOnScreen(this, ActionMsg, TextColor, 0.f);
+	// }
 }
 
 USAction* USActionComponent::GetAction(TSubclassOf<USAction> ActionClass)
@@ -68,6 +68,11 @@ USAction* USActionComponent::GetAction(TSubclassOf<USAction> ActionClass)
 void USActionComponent::AddAction(AActor* Instigator, TSubclassOf<USAction> ActionClass)
 {
 	if (!ensure(ActionClass))
+	{
+		return;
+	}
+
+	if (!GetOwner()->HasAuthority())
 	{
 		return;
 	}
@@ -122,6 +127,10 @@ bool USActionComponent::StopActionByName(AActor* InstigatorActor, FName ActionNa
 		{
 			if (Action->IsRunning())
 			{
+				if (!GetOwner()->HasAuthority())
+				{
+					ServerStopAction(InstigatorActor, ActionName);
+				}
 				Action->StopAction(InstigatorActor);
                 return true;
 			}
@@ -133,6 +142,11 @@ bool USActionComponent::StopActionByName(AActor* InstigatorActor, FName ActionNa
 void USActionComponent::ServerStartAction_Implementation(AActor* InstigatorActor, FName ActionName)
 {
 	StartActionByName(InstigatorActor, ActionName);
+}
+
+void USActionComponent::ServerStopAction_Implementation(AActor* InstigatorActor, FName ActionName)
+{
+	StopActionByName(InstigatorActor, ActionName);
 }
 
 void USActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
