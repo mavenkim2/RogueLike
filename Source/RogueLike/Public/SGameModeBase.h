@@ -8,6 +8,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "SGameModeBase.generated.h"
 
+class USSaveGame;
 class ASPowerup;
 class UEnvQuery;
 /**
@@ -19,6 +20,7 @@ class ROGUELIKE_API ASGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 protected:
+	
 	FTimerHandle SpawnTimer;
 	
 	UPROPERTY(EditDefaultsOnly, Category="AI")
@@ -44,10 +46,20 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="PowerUp")
 	float MinimumPowerupSpawnDistance;
+
+	UPROPERTY(VisibleAnywhere, Category="SaveGame")
+	FName SlotName;
+
+	UPROPERTY()
+	USSaveGame* CurrentSaveGame;
 	
 public:
 	ASGameModeBase();
 	virtual void StartPlay() override;
+
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 	UFUNCTION(Exec)
 	void KillAll();
@@ -65,4 +77,9 @@ public:
 	void RespawnPlayedKilled(ASPlayerController* Controller);
 	
 	void OnActorKilled(AActor* VictimActor, AActor* InstigatorActor);
+
+	UFUNCTION(BlueprintCallable, Category="Save Game")
+	void WriteSaveGame();
+	
+	void LoadSaveGame();
 };

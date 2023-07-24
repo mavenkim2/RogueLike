@@ -3,6 +3,8 @@
 
 #include "SPlayerState.h"
 
+#include "SSaveGame.h"
+
 ASPlayerState::ASPlayerState()
 {
 	Credits = 0;
@@ -23,4 +25,20 @@ bool ASPlayerState::ApplyCreditsChange(int32 Delta)
 	// UE_LOG(LogTemp, Log, TEXT("%s has %i credits"), *GetNameSafe(GetOwner()), Credits);
 	OnCreditsChanged.Broadcast(Credits, Delta);
 	return true;
+}
+
+void ASPlayerState::LoadPlayerState_Implementation(USSaveGame* SaveGame)
+{
+	if (SaveGame)
+	{
+		Credits = SaveGame->Credits;
+	}
+}
+
+void ASPlayerState::SavePlayerState_Implementation(USSaveGame* SaveGame)
+{
+	if (SaveGame)
+	{
+		SaveGame->Credits = Credits;
+	}
 }

@@ -32,6 +32,11 @@ void ASTreasureChest::Interact_Implementation(APawn* InstigatorPawn)
 	OnRep_OpenLid();
 }
 
+void ASTreasureChest::OnActorLoaded_Implementation()
+{
+	OnRep_OpenLid();
+}
+
 void ASTreasureChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

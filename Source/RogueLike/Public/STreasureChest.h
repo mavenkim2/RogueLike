@@ -20,7 +20,7 @@ public:
 	float TargetPitch;
 
 protected:
-	UPROPERTY(ReplicatedUsing="OnRep_OpenLid", BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing="OnRep_OpenLid", BlueprintReadOnly, SaveGame)
 	bool bIsLidOpened;
 
 	UFUNCTION()
@@ -35,4 +35,6 @@ protected:
 public:	
 
 	void Interact_Implementation(APawn* InstigatorPawn) override;
+
+	void OnActorLoaded_Implementation() override;
 };
