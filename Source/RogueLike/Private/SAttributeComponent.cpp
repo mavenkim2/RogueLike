@@ -50,6 +50,7 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 }
 
 
+
 float USAttributeComponent::GetHealth() const
 {
 	return Health;
@@ -121,10 +122,15 @@ void USAttributeComponent::Multicast_OnHealthChanged_Implementation(AActor* Inst
 {
 	OnHealthChanged.Broadcast(Instigator, this, NewHealth, Delta);
 }
-
+void USAttributeComponent::Multicast_OnRageChanged_Implementation(AActor* Instigator, float NewRage, float Delta)
+{
+	OnRageChanged.Broadcast(Instigator, this, NewRage, Delta);
+}
 void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(USAttributeComponent, Health);
 	DOREPLIFETIME(USAttributeComponent, HealthMax);
+	DOREPLIFETIME(USAttributeComponent, Rage);
+	DOREPLIFETIME(USAttributeComponent, RageMax);
 }

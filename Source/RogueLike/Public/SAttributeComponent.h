@@ -42,6 +42,9 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_OnHealthChanged(AActor* Instigator, float NewHealth, float Delta);
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_OnRageChanged(AActor* Instigator, float NewRage, float Delta);
 
 public:
 	float GetHealth() const;

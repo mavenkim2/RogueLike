@@ -18,13 +18,16 @@ class ROGUELIKE_API ASPlayerState : public APlayerState
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, ReplicatedUsing="OnRep_Credits", Category="Attributes")
 	int32 Credits;
 
 public:
 	ASPlayerState();
-
+	
 	int32 GetCredits() const;
+
+	UFUNCTION()
+	void OnRep_Credits(int32 OldCredits);
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCreditsChanged OnCreditsChanged;

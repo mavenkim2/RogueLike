@@ -59,12 +59,17 @@ void ASAICharacter::OnPawnSeen(APawn* Pawn)
 	if (GetTargetActor() != Pawn)
 	{
 		SetTargetActor(Pawn);
-		USWorldUserWidget* Widget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
-		if (Widget)
-		{
-			Widget->AttachedActor = this;
-			Widget->AddToViewport(10);
-		}
+		MulticastOnPawnSeen();
+	}
+}
+
+void ASAICharacter::MulticastOnPawnSeen_Implementation()
+{
+	USWorldUserWidget* Widget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+	if (Widget)
+	{
+		Widget->AttachedActor = this;
+		Widget->AddToViewport(10);
 	}
 }
 

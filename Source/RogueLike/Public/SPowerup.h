@@ -22,11 +22,16 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Cooldown")
 	float RespawnTime;
-
-	void SetState(bool bIsActivated);
+	
 	UFUNCTION()
 	void Activate();
 	void DeactivateAndCooldown();
+
+	UPROPERTY(ReplicatedUsing="OnRep_SetState")
+	bool bIsActive;
+
+	UFUNCTION()
+	void OnRep_SetState();
 
 public:	
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;

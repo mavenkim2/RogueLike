@@ -3,6 +3,7 @@
 
 #include "SPowerup.h"
 #include "SAttributeComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASPowerup::ASPowerup()
@@ -13,26 +14,37 @@ ASPowerup::ASPowerup()
 	RespawnTime = 10.0f;
 
 	bReplicates = true;
+	bIsActive = true;
 }
+
 
 void ASPowerup::Interact_Implementation(APawn* InstigatorPawn)
 {
 }
 
-void ASPowerup::SetState(bool bIsActivated)
-{
-	SetActorEnableCollision(bIsActivated);
-	StaticMeshComponent->SetVisibility(bIsActivated, true);
-}
-
 void ASPowerup::Activate()
 {
-	SetState(true);
+	bIsActive = true;
+	OnRep_SetState();
 }
 
 void ASPowerup::DeactivateAndCooldown()
 {
-	SetState(false);
+	bIsActive = false;
+	OnRep_SetState();
 	FTimerHandle CooldownTimer;
 	GetWorldTimerManager().SetTimer(CooldownTimer, this, &ASPowerup::Activate, RespawnTime);
 }
+
+void ASPowerup::OnRep_SetState()
+{
+	SetActorEnableCollision(bIsActive);
+	StaticMeshComponent->SetVisibility(bIsActive, true);
+}
+
+void ASPowerup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASPowerup, bIsActive);
+}
+
