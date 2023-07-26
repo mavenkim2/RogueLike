@@ -4,6 +4,7 @@
 #include "SActionEffect.h"
 
 #include "SActionComponent.h"
+#include "GameFramework/GameStateBase.h"
 
 // duration period, each with timers
 // start action starts the timers, stop action clears and stops the timers
@@ -49,6 +50,16 @@ void USActionEffect::StopAction_Implementation(AActor* InstigatorActor)
 	{
 		ActionComponent->RemoveAction(this);
 	}
+}
+
+float USActionEffect::GetTimeElapsed() const
+{
+	AGameStateBase* GameStateBase = GetWorld()->GetGameState();
+	if (GameStateBase)
+	{
+		return GameStateBase->GetServerWorldTimeSeconds() - TimeStarted;
+	}
+	return 0.f;
 }
 
 void USActionEffect::ExecutePeriodicEffect_Implementation(AActor* Instigator)

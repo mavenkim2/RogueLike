@@ -62,6 +62,12 @@ public:
 	}
 	
 protected:
+	UPROPERTY(BlueprintReadOnly, Replicated, Category="UI")
+	float TimeStarted;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="UI")
+	UTexture2D* Icon;
+	
 	UPROPERTY(EditDefaultsOnly, Category="Action")
 	FName ActionName;
 

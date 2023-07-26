@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "SPlayerController.generated.h"
 
+class UInputAction;
 /**
  * 
  */
@@ -16,6 +17,14 @@ class ROGUELIKE_API ASPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	UInputAction* TogglePauseMenuInputAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<UUserWidget> PauseMenuWidgetClass;
+
+	UUserWidget* PauseMenuWidget;
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPawnChanged OnPawnChanged;
@@ -26,4 +35,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BlueprintBeginPlayingState();
+
+	UFUNCTION(BlueprintCallable, Category="UI")
+	void TogglePauseMenu();
+
+	virtual void SetupInputComponent() override;
 };

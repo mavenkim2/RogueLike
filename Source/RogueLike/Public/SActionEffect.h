@@ -21,6 +21,9 @@ public:
 	virtual void StopAction_Implementation(AActor* InstigatorActor) override;
 	
 protected:
+	UFUNCTION(BlueprintCallable)
+	float GetTimeElapsed() const;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Effects")
 	float Duration;
 	
