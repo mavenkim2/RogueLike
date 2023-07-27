@@ -22,6 +22,7 @@ void ASPowerup::Interact_Implementation(APawn* InstigatorPawn)
 {
 }
 
+
 void ASPowerup::Activate()
 {
 	bIsActive = true;
@@ -40,6 +41,11 @@ void ASPowerup::OnRep_SetState()
 {
 	SetActorEnableCollision(bIsActive);
 	StaticMeshComponent->SetVisibility(bIsActive, true);
+}
+
+FText ASPowerup::GetInteractText_Implementation(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
 }
 
 void ASPowerup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
