@@ -4,22 +4,52 @@
 
 #include "CoreMinimal.h"
 #include "SPlayerController.h"
+#include "Engine/DataTable.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "GameFramework/GameModeBase.h"
 #include "SGameModeBase.generated.h"
 
+class USMonsterData;
 class USSaveGame;
 class ASPowerup;
 class UEnvQuery;
 /**
  * 
  */
+USTRUCT(BlueprintType)
+struct FMonsterInfoRow : public FTableRowBase
+{
+	GENERATED_BODY();
+
+	FMonsterInfoRow()
+	{
+		Weight = 1.f;
+		SpawnCost = 5.f;
+		KillReward = 20.f;
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FPrimaryAssetId MonsterId; // USMonsterData* MonsterData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Weight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SpawnCost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float KillReward;
+};
+
 UCLASS()
 class ROGUELIKE_API ASGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category="AI")
+	UDataTable* MonsterTable;
 	
 	FTimerHandle SpawnTimer;
 	
@@ -28,10 +58,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="PowerUp")
 	UEnvQuery* SpawnPowerUpsEnvQuery;
-
-	UPROPERTY(EditDefaultsOnly, Category="AI")
-	TSubclassOf<AActor> MinionClass;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	UCurveFloat* CurveFloat;
 
@@ -52,6 +79,8 @@ protected:
 
 	UPROPERTY()
 	USSaveGame* CurrentSaveGame;
+
+	void OnMonsterLoaded(FPrimaryAssetId PrimaryAssetId, FVector SpawnLocation);
 	
 public:
 	ASGameModeBase();

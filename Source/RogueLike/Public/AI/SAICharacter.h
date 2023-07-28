@@ -20,7 +20,11 @@ public:
 	// Sets default values for this character's properties
 	ASAICharacter();
 
+	UPROPERTY(EditDefaultsOnly, Category="AI")
+	FName MonsterName;
+
 protected:
+	
 	UPROPERTY(VisibleAnywhere, Category="Effects")
 	FName TimeToHitParamName;
 

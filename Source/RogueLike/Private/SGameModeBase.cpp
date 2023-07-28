@@ -4,19 +4,24 @@
 #include "SGameModeBase.h"
 
 #include "EngineUtils.h"
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
+#include "SMonsterData.h"
 #include "SPlayerController.h"
 #include "SPlayerState.h"
 #include "SPowerup.h"
 #include "SSaveGame.h"
 #include "AI/SAICharacter.h"
+#include "Engine/AssetManager.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "RogueLike/RogueLike.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("rg.SpawnBots"), true, TEXT("Enable spawning of bots via timer"), ECVF_Cheat);
+
 
 ASGameModeBase::ASGameModeBase()
 {
@@ -115,10 +120,50 @@ void ASGameModeBase::OnSpawnBotsQueryCompleted(UEnvQueryInstanceBlueprintWrapper
 		return;
 	}
 
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	GetWorld()->SpawnActor<AActor>(MinionClass, SpawnLocations[0], FRotator::ZeroRotator, SpawnParameters);
-	DrawDebugSphere(GetWorld(), SpawnLocations[0], 60.f, 20, FColor::Blue, false, 30.f);
+	// FActorSpawnParameters SpawnParameters;
+	// SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	if (MonsterTable)
+	{
+		TArray<FMonsterInfoRow*> Rows;
+		MonsterTable->GetAllRows("", Rows);
+		FMonsterInfoRow* SelectedRow = Rows[FMath::RandRange(0, Rows.Num()-1)];
+
+		UAssetManager* AssetManager = UAssetManager::GetIfValid();
+		if (AssetManager)
+		{
+			LogOnScreen(this, "Loading...", FColor::Green);
+			TArray<FName> Bundles;
+			FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameModeBase::OnMonsterLoaded,SelectedRow->MonsterId, SpawnLocations[0]);
+			AssetManager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundles, Delegate);
+		}
+	}
+	// DrawDebugSphere(GetWorld(), SpawnLocations[0], 60.f, 20, FColor::Blue, false, 30.f);
+}
+void ASGameModeBase::OnMonsterLoaded(FPrimaryAssetId PrimaryAssetId, FVector SpawnLocation)
+{
+	LogOnScreen(this, "Finished loading...", FColor::Green);
+	UAssetManager* AssetManager = UAssetManager::GetIfValid();
+	if (AssetManager)
+	{
+		USMonsterData* MonsterData = Cast<USMonsterData>(AssetManager->GetPrimaryAssetObject(PrimaryAssetId));
+
+		if (MonsterData)
+		{
+			AActor* AI = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
+			if (AI)
+			{
+				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(AI), *GetNameSafe(MonsterData)));
+				USActionComponent* ActionComponent = AI->GetComponentByClass<USActionComponent>();
+				if (ActionComponent)
+				{
+					for (TSubclassOf<USAction> ActionClass : MonsterData->Actions)
+					{
+						ActionComponent->AddAction(AI, ActionClass);
+					}
+				}
+			}
+		}
+	}
 }
 
 void ASGameModeBase::OnPowerUpSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
@@ -190,7 +235,18 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* InstigatorActor)
 	{
 		if (ASPlayerState* PlayerState = Character->GetPlayerState<ASPlayerState>())
 		{
-			PlayerState->ApplyCreditsChange(CreditsOnKill);
+			if (ASAICharacter* AICharacter = Cast<ASAICharacter>(VictimActor))
+			{
+				if (MonsterTable)
+				{
+					float CreditsRewarded = MonsterTable->FindRow<FMonsterInfoRow>(AICharacter->MonsterName, "")->KillReward;
+					PlayerState->ApplyCreditsChange(CreditsRewarded);
+				}
+			}
+			else
+			{
+				PlayerState->ApplyCreditsChange(CreditsOnKill);
+			}
 		}
 	}
 	UE_LOG(LogTemp, Log, TEXT("Actor %s killed by %s"), *GetNameSafe(VictimActor), *GetNameSafe(InstigatorActor));
