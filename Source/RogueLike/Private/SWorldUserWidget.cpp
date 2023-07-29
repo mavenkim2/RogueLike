@@ -14,11 +14,11 @@ void USWorldUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	if (!IsValid(AttachedActor))
 	{
 		RemoveFromParent();
-		UE_LOG(LogTemp, Warning, TEXT("Removing damage bar"));
 		return;
 	}
 	FVector2D ScreenPosition;
-	if (UGameplayStatics::ProjectWorldToScreen(GetOwningPlayer(), AttachedActor->GetActorLocation()+WorldOffset, ScreenPosition))
+	bool bIsOnScreen = UGameplayStatics::ProjectWorldToScreen(GetOwningPlayer(), AttachedActor->GetActorLocation()+WorldOffset, ScreenPosition);
+	if (bIsOnScreen)
 	{
 		float ScreenSize = UWidgetLayoutLibrary::GetViewportScale(GetWorld());
 		ScreenPosition /= ScreenSize;
@@ -26,5 +26,9 @@ void USWorldUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		{
 			ParentSizeBox->SetRenderTranslation(ScreenPosition);	
 		}
+	}
+	if (ParentSizeBox)
+	{
+		ParentSizeBox->SetVisibility(bIsOnScreen ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
 	}
 }

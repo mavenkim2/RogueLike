@@ -8,6 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "RogueLike/RogueLike.h"
 
+DECLARE_CYCLE_STAT(TEXT("StartActionByName"), STAT_StartActionByName, STATGROUP_Roguelike);
 
 // Sets default values for this component's properties
 USActionComponent::USActionComponent()
@@ -98,6 +99,7 @@ void USActionComponent::RemoveAction(USAction* ActionToRemove)
 
 bool USActionComponent::StartActionByName(AActor* InstigatorActor, FName ActionName)
 {
+	SCOPE_CYCLE_COUNTER(STAT_StartActionByName);
 	for (USAction* Action : Actions)
 	{
 		if (Action && Action->GetActionName() == ActionName)
@@ -112,6 +114,8 @@ bool USActionComponent::StartActionByName(AActor* InstigatorActor, FName ActionN
 			{
 				ServerStartAction(InstigatorActor, ActionName);
 			}
+			TRACE_BOOKMARK(TEXT("StartActionByName: %s"), ActionName);
+			
 			Action->StartAction(InstigatorActor);
 			return true;
 		}

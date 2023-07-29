@@ -13,6 +13,8 @@
 ASMagicProjectile::ASMagicProjectile()
 {
 	Damage = 20.f;
+
+	InitialLifeSpan = 10.f;
 }
 
 // Called when the game starts or when spawned
